@@ -26,6 +26,8 @@ main = do
   getCurrentTime >>= \now ->
     simulateFailedLongRunningPostgresCall pool
 
+  Pool.destroyAllResources pool
+
   result :: Either Exception.SomeException [Persist.Single String] <-
     Exception.try . ((flip Persist.runSqlPersistMPool) pool) $ do
         Persist.rawSql @(Persist.Single String) "select pg_sleep(5)" []
