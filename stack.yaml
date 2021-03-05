@@ -1,0 +1,18 @@
+resolver: nightly-2021-03-05
+
+packages:
+- .
+
+allow-newer: true
+
+extra-deps:
+- git: https://github.com/YesodWeb/persistent.git
+  commit: 332f0a6b454ec0cf860dbf0d8e737a291b4d429a
+  subdirs:
+  - persistent
+  - persistent-postgresql
+
+nix:
+  pure: true
+  enable: true
+  packages: [ zlib postgresql ]
