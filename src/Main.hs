@@ -19,6 +19,7 @@ main = do
 
   -- I started a postgres server with:
   -- docker run --rm --name some-postgres -p 5432:5432 -e POSTGRES_PASSWORD=secret postgres
+
   pool <- Logger.runNoLoggingT $ Persist.createPostgresqlPool "postgresql://postgres:secret@localhost/postgres" 1
 
   Monad.void $ createTableFoo pool
@@ -29,7 +30,7 @@ main = do
   Pool.destroyAllResources pool
 
   result :: Either Exception.SomeException [Persist.Single String] <-
-    Exception.try . ((flip Persist.runSqlPersistMPool) pool) $ do
+    Exception.try . flip Persist.runSqlPersistMPool pool $
         Persist.rawSql @(Persist.Single String) "select pg_sleep(5)" []
 
   -- when we try the above we get back:
@@ -39,18 +40,17 @@ main = do
   putStrLn $ "result: " <> show result
 
 createTableFoo :: Pool.Pool Persist.SqlBackend -> IO ()
-createTableFoo pool = (flip Persist.runSqlPersistMPool) pool $ do
+createTableFoo pool = flip Persist.runSqlPersistMPool pool $
   Persist.rawExecute "CREATE table if not exists foo(id int);" []
 
 simulateFailedLongRunningPostgresCall :: Pool.Pool Persist.SqlBackend -> IO ()
 simulateFailedLongRunningPostgresCall pool = do
-  threadId <- Concurrent.forkIO
-    $ (do
+  threadId <- Concurrent.forkIO (do
         let numThings :: Int = 100000000
         putStrLn $ "start inserting " <> show numThings <> " things"
-        Monad.forM_ [1 .. numThings] $ \_ -> do
+        Monad.forM_ [1 .. numThings] $ \_ -> 
           (flip Persist.runSqlPersistMPool) pool $
-            Persist.rawExecute "insert into foo values(1);" []
+          Persist.rawExecute "insert into foo values(1);" []
       )
   Concurrent.threadDelay 5000000
   Monad.void $ Concurrent.killThread threadId
