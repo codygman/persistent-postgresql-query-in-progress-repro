@@ -32,6 +32,8 @@ loggedClose :: PGS.Connection -> IO ()
 -- which I feel could mess up this whole test
 loggedClose conn = PGS.close conn `UE.catchAny` \e -> error "error closing db"
 
+-- ******TODO**** try adding in ResourceT stuff to see if this issue might be the cause
+-- https://github.com/snoyberg/conduit/issues/425
 
 -- TODO try removing this IORef call and seeing if that fixes persistent issue
 -- https://github.com/yesodweb/persistent/blob/f82154f80d3eda99c26acfb27d1b391708440580/persistent/Database/Persist/Sql/Run.hs#L304
