@@ -25,3 +25,4 @@ executable persistent-postgresql-query-in-progress-issue
                      , resource-pool
                      , time
                      , postgresql-simple
+                     , resourcet
