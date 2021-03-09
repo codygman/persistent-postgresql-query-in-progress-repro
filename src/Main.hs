@@ -24,10 +24,17 @@ import qualified Data.Text as T
 
 
 loggedClose :: PGS.Connection -> IO ()
--- TODO link to where the postgres backend calls PGS.close
+-- TODO replicate other stuff with io ref and stmtFinalize done in persistent:
+-- https://github.com/yesodweb/persistent/blob/f82154f80d3eda99c26acfb27d1b391708440580/persistent/Database/Persist/Sql/Run.hs#L302
+-- stmtFinalize just does `return ()`, see:
+-- https://github.com/yesodweb/persistent/blob/f69716dcfeca01896ec42dec874393fbe60d3939/persistent-postgresql/Database/Persist/Postgresql.hs#L1699
 -- TODO more faithfully reproduce this without error
 -- which I feel could mess up this whole test
 loggedClose conn = PGS.close conn `UE.catchAny` \e -> error "error closing db"
+
+
+-- TODO try removing this IORef call and seeing if that fixes persistent issue
+-- https://github.com/yesodweb/persistent/blob/f82154f80d3eda99c26acfb27d1b391708440580/persistent/Database/Persist/Sql/Run.hs#L304
 
 main :: IO ()
 main = do
