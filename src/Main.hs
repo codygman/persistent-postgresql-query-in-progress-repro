@@ -35,6 +35,10 @@ loggedClose conn = PGS.close conn `UE.catchAny` \e -> error "error closing db"
 -- ******TODO**** try adding in ResourceT stuff to see if this issue might be the cause
 -- https://github.com/snoyberg/conduit/issues/425
 
+-- TODO try being "paranoid"
+-- https://github.com/snoyberg/conduit/issues/425#issuecomment-555476218
+-- https://github.com/merijn/broadcast-chan/commit/73f8e7a7263ebd0b97193f16416f3ffb5193f787?diff=split#diff-74a4c4c757de2d180b255daee7e175f310115be279b4cc514786a4aea9111a32R44
+
 -- TODO try removing this IORef call and seeing if that fixes persistent issue
 -- https://github.com/yesodweb/persistent/blob/f82154f80d3eda99c26acfb27d1b391708440580/persistent/Database/Persist/Sql/Run.hs#L304
 
