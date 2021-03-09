@@ -26,3 +26,5 @@ executable persistent-postgresql-query-in-progress-issue
                      , time
                      , postgresql-simple
                      , resourcet
+                     , unliftio
+                     , text

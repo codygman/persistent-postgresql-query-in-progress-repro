@@ -19,6 +19,15 @@ import qualified Database.PostgreSQL.Simple as PGS
 import Debug.Trace
 import Control.Monad.Trans.Resource
 import Control.Monad.IO.Class
+import qualified UnliftIO.Exception as UE
+import qualified Data.Text as T
+
+
+loggedClose :: PGS.Connection -> IO ()
+-- TODO link to where the postgres backend calls PGS.close
+-- TODO more faithfully reproduce this without error
+-- which I feel could mess up this whole test
+loggedClose conn = PGS.close conn `UE.catchAny` \e -> error "error closing db"
 
 main :: IO ()
 main = do
@@ -26,13 +35,15 @@ main = do
   -- I started a postgres server with:
   -- docker run --rm --name some-postgres -p 5432:5432 -e POSTGRES_PASSWORD=secret postgres
 
-  pool <- Pool.createPool (PGS.connect PGS.defaultConnectInfo { PGS.connectPassword = "secret" } ) PGS.close 1 10 1
+  -- TODO make createPool like  https://github.com/yesodweb/persistent/blob/f82154f80d3eda99c26acfb27d1b391708440580/persistent/Database/Persist/Sql/Run.hs#L230
+  -- TODO could runLoggingT have anything to do with masking/async exception weirdness?
+  -- pool config have anything to do with it?
+  -- what about the function to create a connection that's passed in?
+  pool <- Pool.createPool (PGS.connect PGS.defaultConnectInfo { PGS.connectPassword = "secret" } ) loggedClose 1 10 1
 
 
   Pool.withResource pool $ \conn -> do
     PGS.execute_ conn "create table if not exists foo(id int);"
-
-
 
   let freeConn (res, localPool) relType =
         case (("relType: " <> show relType) `trace` relType) of
