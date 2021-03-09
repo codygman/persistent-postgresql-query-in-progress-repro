@@ -24,7 +24,11 @@ main = do
 
   pool <- Pool.createPool (PGS.connect PGS.defaultConnectInfo { PGS.connectPassword = "secret" } ) PGS.close 1 10 1
 
-  
+
+  Pool.withResource pool $ \conn -> do
+    PGS.execute_ conn "create table if not exists foo(id int);"
+
+
   threadId <- Concurrent.forkIO $ do
       Pool.withResource pool $ \conn -> do
         let numThings :: Int = 100000000
